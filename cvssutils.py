@@ -49,7 +49,7 @@ def CVSS_list (params):
         parameter("S", params[4], False) + \
         parameter("C", params[5], False) + \
         parameter("I", params[6], False) + \
-        parameter("A", params[7], True)    
+        parameter("A", params[7], True)
 
 def CVSS_score (vector):
     # Return base score for given CVSS vector string
@@ -67,7 +67,7 @@ def CVSS_values (vector):
         s = p.split(":")
         param_str.append (s[1])
     # Ignore first parameter which is CVSS version
-    return param_str[1:] 
+    return param_str[1:]
 
 def CVSS_modify_vector (original, modify):
     # Take CVSS vector (as a list) and update based on modify parameters
@@ -88,10 +88,24 @@ def CVSS_modify_vector (original, modify):
 
 def CVSS_modify (vector, modify):
     # Take CVSS vector string and modify parameters according to modify list
-    return CVSS_list(CVSS_modify_vector (CVSS_values(vector), modify))   
+    return CVSS_list(CVSS_modify_vector (CVSS_values(vector), modify))
+
+def CVSS_modify_base_metrics(mod_string):
+    mod_default = ["X", "X", "X", "X","X", "X", "X", "X"]
+    parameters = {"MAV":0,"MAC":1,"MPR":2, "MUI":3, "MS":4, "MC":5, "MI":6, "MA":7}
+    params = mod_string.split(SEPARATOR)
+    for p in params:
+        s = p.split(":")
+        # s[0] is paramerter name, s[1] is parameter values
+        if s[0] in parameters:
+            # Index = parameters[s[0]]
+            # Update with values
+            mod_default[parameters[s[0]]] = s[1]
+    return mod_default
 
 # Main
 if __name__ == "__main__":
-	print ("CVSS Utilities")
+    print ("CVSS Utilities")
+    print (CVSS_modify_base_metrics("MAV:H/MC:N"))
 
 # END
