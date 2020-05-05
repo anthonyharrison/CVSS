@@ -24,7 +24,7 @@ pip -r requirements.txt
    -h, --help            show this help message and exit
    -C CVE, --CVE CVE     CVE Identity
    -m MOD_VECTOR, --modify MOD_VECTOR
-                         Modified CVSS Base Metric string (e.g. MAV:H/MC:H)
+                         Modified CVSS Base Metric string (e.g. MAV:L/MC:H)
    -b, --base            Report base score (default)
    -e, --exploit         Report exploit score
    -i, --impact          Report impact score
