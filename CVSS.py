@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     verbose = False
     modify = False
-    base = True
+    base = False
     exploit = False
     impact = False
     vector_string = False
@@ -102,7 +102,7 @@ if __name__ == "__main__":
     cve = params.cve
     verbose = params.verbose
     version = params.version
-    #base = params.base
+    base = params.base
     exploit = params.exploit
     impact = params.impact
     vector_string = params.vector_string
@@ -117,6 +117,10 @@ if __name__ == "__main__":
 
     if mod_vector != None:
         modify = True
+
+    # Base parameter needs to be explicitly specified if impact or exploit parameters specified
+    if not impact and not exploit:
+        base = True
 
     if version:
         print (desc,": version",VERSION)
