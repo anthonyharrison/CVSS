@@ -17,7 +17,7 @@
 #       -e Report exploit score
 #       -i Report impact score
 #       -s Report CVSS Vector String
-#       -V Verbose
+#       -V Verbose reporting
 #       -v Show version information
 #       -h Help information
 #
@@ -60,7 +60,7 @@ def get_CVE_record(CVE):
                         }
                 except KeyError as e:
                     print("[INFO] Couldn't find CVSSv3 data for", CVE)
-                        # Fetch the CVSS v2 info where possible
+                    # Fetch the CVSS v2 info where possible
                     try:
                         if cve_data["impact"]["baseMetricV2"]:
                             # Collate the scores into a dict
@@ -77,6 +77,12 @@ def get_CVE_record(CVE):
         # If there is an error making the web request, just move on
         print("[INFO] CVSS info not found for", CVE)
     return scores
+
+def info_report(text,value,verbose):
+    if verbose:
+        print ("[INFO]" + text,value)
+    else:
+        print (value)
 
 # Main
 if __name__ == "__main__":
@@ -139,52 +145,21 @@ if __name__ == "__main__":
     base_score = cvssutils.CVSS_score(scores["vector_string"])
     if  base_score != scores["base_score"]:
         # Interesting....probably because CVE reported using V2 metrics
-        print ("Discrepency between base score calculcations for CVE",cve,". CVE Record is",scores["base_score"]," Calculated is",base_score)
+        print ("[ERROR] Discrepancy between base score calculations for CVE",cve,". CVE Record is",scores["base_score"]," Calculated is",base_score)
         sys.exit(1)
 
     if modify:
         # Now modify the CVSS vestor and calculate the updated score
         modified_base_score = cvssutils.CVSS_score(cvssutils.CVSS_modify(scores["vector_string"], cvssutils.CVSS_modify_base_metrics(mod_vector)))
         if verbose:
-            print ("Original Base Score",scores["base_score"])
-            print ("Modified Base Score",modified_base_score)
-        else:
-            # Just return modified score
-            print (modified_base_score)
-        if exploit:
-            if verbose:
-                print ("Exploit Score",scores["exploitability_score"])
-            else:
-                print (scores["exploitability_score"])
-        if impact:
-            if verbose:
-                print ("Impact Score",scores["impact_score"])
-            else:
-                print (scores["impact_score"])
-        if vector_string:
-            if verbose:
-                print ("CVSS vector",scores["vector_string"])
-            else:
-                print (scores["vector_string"])
-    else:
-        if base:
-            if verbose:
-                print ("Base Score",base_score)
-            else:
-                print (base_score)
-        if exploit:
-            if verbose:
-                print ("Exploit Score",scores["exploitability_score"])
-            else:
-                print (scores["exploitability_score"])
-        if impact:
-            if verbose:
-                print ("Impact Score",scores["impact_score"])
-            else:
-                print (scores["impact_score"])
-        if vector_string:
-            if verbose:
-                print ("CVSS vector",scores["vector_string"])
-            else:
-                print (scores["vector_string"])
+            print ("[INFO] Original Base Score",scores["base_score"])
+        info_report("Modified Base Score",modified_base_score,verbose)
+    if base:
+        info_report("Base Score",base_score,verbose)
+    if exploit:
+        info_report("Exploit Score",scores["exploitability_score"],verbose)
+    if impact:
+        info_report("Impact Score",scores["impact_score"],verbose)
+    if vector_string:
+        info_report("CVSS vector",scores["vector_string"],verbose)
 # end
