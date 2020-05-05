@@ -48,7 +48,7 @@ def get_CVE_record(CVE):
                 try:
                     cve_data = json.loads(response.read())
                 except JSONDecodeError as e:
-                    print("[INFO] Invalid JSON Received for", CVE)
+                    print("[ERROR] Invalid JSON received for CVE", CVE)
                     # Fetch the CVSS v3 info where possible
                 try:
                     if cve_data["impact"]["baseMetricV3"]:
@@ -59,23 +59,11 @@ def get_CVE_record(CVE):
                         "exploitability_score": cve_data["impact"]["baseMetricV3"]["exploitabilityScore"],
                         }
                 except KeyError as e:
-                    print("[INFO] Couldn't find CVSSv3 data for", CVE)
-                    # Fetch the CVSS v2 info where possible
-                    try:
-                        if cve_data["impact"]["baseMetricV2"]:
-                            # Collate the scores into a dict
-                            scores = {
-                            "base_score": cve_data["impact"]["baseMetricV2"]["cvssV2"]["baseScore"],
-                            "vector_string": cve_data["impact"]["baseMetricV2"]["cvssV2"]["vectorString"],
-                            "impact_score": cve_data["impact"]["baseMetricV2"]["impactScore"],
-                            "exploitability_score": cve_data["impact"]["baseMetricV2"]["exploitabilityScore"],
-                            }
-                    except KeyError as e:
-                        print("[INFO] Couldn't find CVSSv2 data for", CVE)
+                    print("[ERROR] No CVSSv3 data for", CVE)
 
     except (HTTPError, URLError, gaierror) as e:
         # If there is an error making the web request, just move on
-        print("[INFO] CVSS info not found for", CVE)
+        print("[ERROR] No CVE record for",CVE)
     return scores
 
 def info_report(text,value,verbose):
@@ -132,21 +120,20 @@ if __name__ == "__main__":
 
     if version:
         print (desc,": version",VERSION)
-        sys.exit()
+        sys.exit(0)
 
     scores = get_CVE_record(cve)
     # Check that we have some data
     if len(scores) == 0:
         # No record found
-        print ("[ERROR] No record for",cve,"found")
         sys.exit(-1)
 
     # Validate the calculated base score matches the value stored with the CVE record
     base_score = cvssutils.CVSS_score(scores["vector_string"])
     if  base_score != scores["base_score"]:
-        # Interesting....probably because CVE reported using V2 metrics
+        # Interesting....
         print ("[ERROR] Discrepancy between base score calculations for CVE",cve,". CVE Record is",scores["base_score"]," Calculated is",base_score)
-        sys.exit(1)
+        sys.exit(-2)
 
     if modify:
         # Now modify the CVSS vestor and calculate the updated score
