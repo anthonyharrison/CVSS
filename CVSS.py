@@ -3,23 +3,24 @@
 # Author: Anthony Harrison <anthony.p.harrison@gmail.com>
 # License: MIT <https://opensource.org/licenses/MIT>
 #
-# A simple, quick script that extracts the CVSS metrics data for a specified CVE
-# and provides an optional updated base score based on a modified CVSS base metric vector
+# A simple script that extracts the CVSS metrics data for a specified CVE
+# and provides an optional updated score based on a modified CVSS base metric vector
 #
 # Uses CVE JSON files found at: https://github.com/olbat/nvdcve/tree/master/nvdcve
 #
-# Usage: python cvss.py -C <CVE-ID> -m <Modified vector> -V
+# Usage: python cvss.py -C <CVE-ID> -m <Modified vector> {-options}
 #
 # where CVE_ID is in form CVE-YYYY-NNNN
-#       Example Modified Vector is "MAC:N/MC:H"
+#       Example Modified Vector is "MAV:L/MC:H"
 #
+# Options:
 #       -b Report base score (Default)
 #       -e Report exploit score
+#       -h Help information
 #       -i Report impact score
 #       -s Report CVSS Vector String
 #       -V Verbose reporting
 #       -v Show version information
-#       -h Help information
 #
 
 import argparse
@@ -68,7 +69,7 @@ def get_CVE_record(CVE):
 
 def info_report(text,value,verbose):
     if verbose:
-        print ("[INFO]" + text,value)
+        print ("[INFO] " + text,value)
     else:
         print (value)
 
@@ -140,12 +141,13 @@ if __name__ == "__main__":
         sys.exit(-2)
 
     if modify:
-        # Now modify the CVSS vestor and calculate the updated score
-        modified_base_score = cvssutils.CVSS_score(cvssutils.CVSS_modify(scores["vector_string"], cvssutils.CVSS_modify_base_metrics(mod_vector)))
+        # Now modify the CVSS vector and calculate the updated score
+        modified_score = cvssutils.CVSS_modscore(scores["vector_string"] + "/" + mod_vector)
         if verbose:
             print ("[INFO] Original Base Score",scores["base_score"])
-        info_report("Modified Base Score",modified_base_score,verbose)
-    if base:
+        info_report("Modified Environment Score",modified_score,verbose)
+    elif base:
+        # Only report if CVSS vector not modified
         info_report("Base Score",base_score,verbose)
     if exploit:
         info_report("Exploit Score",scores["exploitability_score"],verbose)
