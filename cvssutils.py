@@ -57,6 +57,12 @@ def CVSS_score (vector):
     # Returned list order is base score, temporal score, environmental score
     return score[0]
 
+def CVSS_modscore (vector):
+    # Return base score for given CVSS vector string
+    score = calculate_vector(vector, cvss31)
+    # Returned list order is base score, temporal score, environmental score
+    return score[2]
+
 def CVSS_values (vector):
     # Split CVSS vector string into component parts and return list
     # Returned order of parameters is AV, AC, PR, UI, S, C, I, A
